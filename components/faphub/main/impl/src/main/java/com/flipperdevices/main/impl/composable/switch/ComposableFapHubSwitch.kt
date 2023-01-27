@@ -2,8 +2,6 @@ package com.flipperdevices.main.impl.composable.switch
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.TabPosition
 import androidx.compose.material.TabRow
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -33,11 +30,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.flipperdevices.core.ui.ktx.clickableRipple
 import com.flipperdevices.core.ui.ktx.tab.tabIndicatorOffset
-import com.flipperdevices.core.ui.res.R as DesignSystem
 import com.flipperdevices.core.ui.theme.FlipperThemeInternal
 import com.flipperdevices.core.ui.theme.LocalPallet
 import com.flipperdevices.main.impl.model.FapHubTabEnum
+import com.flipperdevices.core.ui.res.R as DesignSystem
 
 @Composable
 fun ComposableFapHubNewSwitch(
@@ -45,10 +43,11 @@ fun ComposableFapHubNewSwitch(
     onSelect: (FapHubTabEnum) -> Unit,
     installedNotificationCount: Int,
     onEndClick: () -> Unit,
+    modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(LocalPallet.current.accent),
         verticalAlignment = Alignment.CenterVertically
@@ -58,11 +57,7 @@ fun ComposableFapHubNewSwitch(
                 modifier = Modifier
                     .padding(top = 11.dp, bottom = 11.dp, start = 16.dp, end = 2.dp)
                     .size(20.dp)
-                    .clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(),
-                        onClick = onBack
-                    ),
+                    .clickableRipple(onClick = onBack),
                 painter = painterResource(com.flipperdevices.core.ui.res.R.drawable.ic_back),
                 contentDescription = null
             )
@@ -92,11 +87,7 @@ fun ComposableFapHubNewSwitch(
             modifier = Modifier
                 .padding(end = 14.dp)
                 .size(24.dp)
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = rememberRipple(),
-                    onClick = onEndClick
-                ),
+                .clickableRipple(onClick = onEndClick),
             painter = painterResource(DesignSystem.drawable.ic_search),
             contentDescription = null,
             tint = LocalPallet.current.onAppBar
@@ -106,10 +97,10 @@ fun ComposableFapHubNewSwitch(
 
 @Composable
 fun ComposableFapHubSwitch(
-    modifier: Modifier,
     fapHubTabEnum: FapHubTabEnum,
     onSelect: (FapHubTabEnum) -> Unit,
-    installedNotificationCount: Int
+    installedNotificationCount: Int,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
@@ -118,7 +109,9 @@ fun ComposableFapHubSwitch(
             .background(LocalPallet.current.fapHubSwitchBackground)
     ) {
         ComposableFapHubSwitchInternal(
-            fapHubTabEnum, onSelect, installedNotificationCount,
+            fapHubTabEnum,
+            onSelect,
+            installedNotificationCount,
             LocalPallet.current.fapHubSelectedBackgroundColor
         )
     }
@@ -159,7 +152,9 @@ private fun ComposableFapHubSwitchInternal(
                 isSelected = fapHubTabEnum.ordinal == it.ordinal,
                 notificationCount = if (it == FapHubTabEnum.INSTALLED) {
                     installedNotificationCount
-                } else 0
+                } else {
+                    0
+                }
             )
         }
     }

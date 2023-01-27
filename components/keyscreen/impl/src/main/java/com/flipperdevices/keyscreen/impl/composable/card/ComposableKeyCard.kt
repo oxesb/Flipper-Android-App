@@ -29,9 +29,9 @@ import com.flipperdevices.keyscreen.shared.ComposableKeyContent
 @Composable
 @Suppress("LongMethod")
 fun ComposableKeyCard(
-    modifier: Modifier = Modifier,
     parsedKey: FlipperKeyParsed,
     deleteState: DeleteState,
+    modifier: Modifier = Modifier,
     synchronizationState: (@Composable () -> Unit)? = null,
     favoriteState: FavoriteState? = null,
     onSwitchFavorites: ((Boolean) -> Unit)? = null,
@@ -45,10 +45,12 @@ fun ComposableKeyCard(
             Row {
                 if (deleteState == DeleteState.NOT_DELETED) {
                     ComposableKeyType(parsedKey.fileType)
-                } else ComposableKeyType(
-                    parsedKey.fileType,
-                    colorKey = LocalPallet.current.keyDeleted
-                )
+                } else {
+                    ComposableKeyType(
+                        parsedKey.fileType,
+                        colorKey = LocalPallet.current.keyDeleted
+                    )
+                }
                 Row(
                     modifier = Modifier
                         .weight(1f)
@@ -61,8 +63,8 @@ fun ComposableKeyCard(
                         onSwitchFavorites != null
                     ) {
                         ComposableFavorite(
-                            Modifier.padding(horizontal = 12.dp),
                             favoriteState,
+                            Modifier.padding(horizontal = 12.dp),
                             onSwitchFavorites
                         )
                     }
@@ -78,7 +80,7 @@ fun ComposableKeyCard(
                     bottom = 12.dp,
                     start = 12.dp,
                     end = 12.dp
-                ).placeholderByLocalProvider(),
+                ).placeholderByLocalProvider(defaultWidth = 128.dp),
                 deleteState = deleteState,
                 keyName = parsedKey.keyName,
                 onEditName = onEditName
@@ -90,7 +92,7 @@ fun ComposableKeyCard(
                         bottom = 18.dp,
                         start = 12.dp,
                         end = 12.dp
-                    ).placeholderByLocalProvider(),
+                    ).placeholderByLocalProvider(defaultWidth = 96.dp, defaultHeight = 12.dp),
                     text = notes ?: stringResource(R.string.keyscreen_card_note_empty),
                     color = LocalPallet.current.text30,
                     style = LocalTypography.current.bodyR14
@@ -117,7 +119,6 @@ fun ComposableKeyCard(
     showBackground = true
 )
 @Composable
-@Suppress("UnusedPrivateMember")
 private fun ComposableKeyCardPreview() {
     val parsedKey = FlipperKeyParsed.RFID(
         keyName = "Test_key",

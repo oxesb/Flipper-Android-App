@@ -19,6 +19,7 @@ import com.flipperdevices.faphub.appcard.composable.AppCard
 import com.flipperdevices.faphub.dao.api.model.FapItem
 import com.flipperdevices.faphub.installedtab.impl.model.FapInstalledScreenState
 import com.flipperdevices.faphub.installedtab.impl.viewmodel.InstalledFapsViewModel
+import kotlinx.collections.immutable.ImmutableList
 import tangle.viewmodel.compose.tangleViewModel
 
 private const val DEFAULT_FAP_COUNT = 20
@@ -41,7 +42,7 @@ fun ComposableInstalledTabScreen(
 
 @Composable
 private fun ComposableInstalledTabScreen(
-    faps: List<FapItem>?,
+    faps: ImmutableList<FapItem>?,
     onOpenFapItem: (FapItem) -> Unit,
     installationButton: @Composable (FapItem?, Modifier, TextUnit) -> Unit
 ) {
@@ -56,7 +57,9 @@ private fun ComposableInstalledTabScreen(
                 ComposableUpdateAllButton(
                     if (faps == null) {
                         Modifier.placeholderConnecting()
-                    } else Modifier
+                    } else {
+                        Modifier
+                    }
                 )
             }
         }
@@ -70,21 +73,23 @@ private fun ComposableInstalledTabScreen(
                     }
                 )
             }
-        } else items(faps.size) { index ->
-            val item = faps[index]
-            AppCard(
-                modifier = Modifier
-                    .clickable(
-                        onClick = { onOpenFapItem(item) }
-                    )
-                    .padding(horizontal = 14.dp, vertical = 12.dp),
-                fapItem = item,
-                installationButton = { modifier, fontSize ->
-                    installationButton(item, modifier, fontSize)
+        } else {
+            items(faps.size) { index ->
+                val item = faps[index]
+                AppCard(
+                    modifier = Modifier
+                        .clickable(
+                            onClick = { onOpenFapItem(item) }
+                        )
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    fapItem = item,
+                    installationButton = { modifier, fontSize ->
+                        installationButton(item, modifier, fontSize)
+                    }
+                )
+                if (index != faps.lastIndex) {
+                    ComposableLoadingItemDivider()
                 }
-            )
-            if (index != faps.lastIndex) {
-                ComposableLoadingItemDivider()
             }
         }
     }

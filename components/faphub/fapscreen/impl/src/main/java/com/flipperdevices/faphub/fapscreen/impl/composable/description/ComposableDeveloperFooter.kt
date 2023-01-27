@@ -24,10 +24,11 @@ import com.flipperdevices.faphub.fapscreen.impl.R
 
 @Composable
 fun ColumnScope.ComposableDeveloperFooter(
-    developerInformation: FapDeveloperInformation?
+    developerInformation: FapDeveloperInformation?,
+    modifier: Modifier = Modifier
 ) {
     Text(
-        modifier = Modifier.padding(bottom = 8.dp, top = 24.dp),
+        modifier = modifier.padding(bottom = 8.dp, top = 24.dp),
         text = stringResource(R.string.fapscreen_developer_title),
         style = LocalTypography.current.buttonM16,
         color = LocalPallet.current.text100
@@ -37,7 +38,9 @@ fun ColumnScope.ComposableDeveloperFooter(
     ComposableGithubLink(
         modifier = if (developerInformation == null) {
             githubLinkModifier.placeholderConnecting()
-        } else githubLinkModifier,
+        } else {
+            githubLinkModifier
+        },
         textId = R.string.fapscreen_developer_github,
         url = developerInformation?.githubRepositoryLink
     )
@@ -45,7 +48,9 @@ fun ColumnScope.ComposableDeveloperFooter(
     ComposableGithubLink(
         modifier = if (developerInformation == null) {
             githubLinkModifier.placeholderConnecting()
-        } else githubLinkModifier,
+        } else {
+            githubLinkModifier
+        },
         textId = R.string.fapscreen_developer_manifest,
         url = developerInformation?.manifestRepositoryLink
     )
@@ -53,9 +58,9 @@ fun ColumnScope.ComposableDeveloperFooter(
 
 @Composable
 private fun ComposableGithubLink(
-    modifier: Modifier,
     @StringRes textId: Int,
-    url: String?
+    url: String?,
+    modifier: Modifier = Modifier
 ) = Row(
     modifier = modifier,
     verticalAlignment = Alignment.CenterVertically

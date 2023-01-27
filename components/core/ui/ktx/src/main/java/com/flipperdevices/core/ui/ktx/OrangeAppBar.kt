@@ -4,15 +4,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,9 +17,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.flipperdevices.core.ui.res.R as DesignSystem
 import com.flipperdevices.core.ui.theme.LocalPallet
 import com.flipperdevices.core.ui.theme.LocalTypography
+import com.flipperdevices.core.ui.res.R as DesignSystem
 
 @Composable
 fun OrangeAppBar(
@@ -40,11 +37,12 @@ fun OrangeAppBar(
 @Composable
 fun OrangeAppBar(
     title: String,
+    modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
     endBlock: (@Composable () -> Unit)? = null
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(LocalPallet.current.accent),
         verticalAlignment = Alignment.CenterVertically
@@ -54,11 +52,7 @@ fun OrangeAppBar(
                 modifier = Modifier
                     .padding(top = 11.dp, bottom = 11.dp, start = 16.dp, end = 2.dp)
                     .size(20.dp)
-                    .clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(),
-                        onClick = onBack
-                    ),
+                    .clickableRipple(onClick = onBack),
                 painter = painterResource(DesignSystem.drawable.ic_back),
                 contentDescription = null
             )
@@ -82,8 +76,8 @@ fun OrangeAppBar(
 @Composable
 fun OrangeAppBarWithIcon(
     @StringRes titleId: Int,
-    onBack: (() -> Unit)? = null,
     @DrawableRes endIconId: Int,
+    onBack: (() -> Unit)? = null,
     onEndClick: () -> Unit
 ) {
     OrangeAppBarWithIcon(
@@ -97,11 +91,13 @@ fun OrangeAppBarWithIcon(
 @Composable
 fun OrangeAppBarWithIcon(
     title: String,
-    onBack: (() -> Unit)? = null,
     @DrawableRes endIconId: Int,
+    modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
     onEndClick: () -> Unit
 ) {
     OrangeAppBar(
+        modifier = modifier,
         title = title,
         onBack = onBack,
         endBlock = {
@@ -109,11 +105,7 @@ fun OrangeAppBarWithIcon(
                 modifier = Modifier
                     .padding(end = 14.dp)
                     .size(24.dp)
-                    .clickable(
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(),
-                        onClick = onEndClick
-                    ),
+                    .clickableRipple(onClick = onEndClick),
                 painter = painterResource(endIconId),
                 contentDescription = null,
                 tint = LocalPallet.current.onAppBar

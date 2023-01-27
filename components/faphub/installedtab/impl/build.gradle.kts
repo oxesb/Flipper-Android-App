@@ -1,5 +1,4 @@
 plugins {
-    id("flipper.lint")
     id("flipper.android-compose")
     id("com.squareup.anvil")
     id("kotlin-kapt")
@@ -25,6 +24,8 @@ dependencies {
     implementation(libs.compose.paging)
 
     implementation(libs.lifecycle.viewmodel.ktx)
+
+    implementation(libs.kotlin.immutable.collections)
 
     // Dagger deps
     implementation(libs.dagger)

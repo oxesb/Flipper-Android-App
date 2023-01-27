@@ -28,12 +28,13 @@ private val DEFAULT_CHANGELOG
 
 @Composable
 fun ColumnScope.ComposableFapChangelogText(
-    changelog: String?
+    changelog: String?,
+    modifier: Modifier = Modifier
 ) {
     var showMoreButton by remember { mutableStateOf(false) }
     var maxChangelogLines by remember { mutableStateOf(MAX_CHANGELOG_LINE) }
     Text(
-        modifier = Modifier.padding(bottom = 8.dp, top = 24.dp),
+        modifier = modifier.padding(bottom = 8.dp, top = 24.dp),
         text = stringResource(R.string.fapscreen_changelog_title),
         style = LocalTypography.current.buttonM16,
         color = LocalPallet.current.text100
@@ -44,7 +45,9 @@ fun ColumnScope.ComposableFapChangelogText(
             Modifier
                 .fillMaxWidth()
                 .placeholderConnecting()
-        } else Modifier,
+        } else {
+            Modifier
+        },
         text = changelog?.let { annotatedStringFromMarkdown(it) }
             ?: AnnotatedString(DEFAULT_CHANGELOG),
         style = LocalTypography.current.bodyR14,
@@ -54,7 +57,9 @@ fun ColumnScope.ComposableFapChangelogText(
         onTextLayout = {
             if (it.hasVisualOverflow) {
                 showMoreButton = changelog != null
-            } else showMoreButton = false
+            } else {
+                showMoreButton = false
+            }
         }
     )
 

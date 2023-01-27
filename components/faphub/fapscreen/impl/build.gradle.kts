@@ -1,5 +1,4 @@
 plugins {
-    id("flipper.lint")
     id("flipper.android-compose")
     id("com.squareup.anvil")
     id("kotlin-kapt")
@@ -29,6 +28,8 @@ dependencies {
     implementation(projects.components.faphub.dao.api)
     implementation(projects.components.faphub.appcard.composable)
     implementation(projects.components.faphub.installation.api)
+
+    implementation(libs.kotlin.immutable.collections)
 
     // Dagger deps
     implementation(libs.dagger)

@@ -36,8 +36,8 @@ private val DEFAULT_DESCRIPTION
 
 @Composable
 fun AppCard(
-    modifier: Modifier,
     fapItem: FapItem?,
+    modifier: Modifier = Modifier,
     installationButton: @Composable (Modifier, TextUnit) -> Unit
 ) {
     Column(modifier) {
@@ -46,11 +46,11 @@ fun AppCard(
             installationButton = installationButton
         )
         AppCardScreenshots(
+            screenshots = fapItem?.screenshots,
             modifier = Modifier.padding(vertical = 12.dp),
             screenshotModifier = Modifier
                 .padding(end = 6.dp)
                 .size(width = 170.dp, height = 84.dp),
-            screenshots = fapItem?.screenshots
         )
         Text(
             modifier = if (fapItem == null) Modifier.placeholderConnecting() else Modifier,
@@ -65,8 +65,8 @@ fun AppCard(
 
 @Composable
 private fun AppCardTop(
-    modifier: Modifier = Modifier,
     fapItem: FapItem?,
+    modifier: Modifier = Modifier,
     installationButton: @Composable (modifier: Modifier, fontSize: TextUnit) -> Unit
 ) {
     Row(
@@ -108,6 +108,6 @@ private fun AppCardTop(
 @Composable
 private fun ComposableAppCardLoadingPreview() {
     FlipperThemeInternal {
-        AppCard(Modifier, null, { _, _ -> })
+        AppCard(null) { _, _ -> }
     }
 }

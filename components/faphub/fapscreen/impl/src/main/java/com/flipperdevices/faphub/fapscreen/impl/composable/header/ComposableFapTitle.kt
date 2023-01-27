@@ -23,10 +23,10 @@ private val DEFAULT_NAME
 
 @Composable
 internal fun ComposableFapTitle(
-    modifier: Modifier,
     name: String?,
     iconUrl: String?,
-    fapCategory: FapCategory?
+    fapCategory: FapCategory?,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
@@ -44,7 +44,9 @@ internal fun ComposableFapTitle(
             Text(
                 modifier = if (name == null) {
                     Modifier.placeholderConnecting()
-                } else Modifier,
+                } else {
+                    Modifier
+                },
                 text = name ?: DEFAULT_NAME,
                 style = LocalTypography.current.titleM18,
                 color = LocalPallet.current.text100,

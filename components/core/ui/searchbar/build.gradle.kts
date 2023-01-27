@@ -1,11 +1,11 @@
 plugins {
-    id("flipper.lint")
     id("flipper.android-compose")
 }
 
 dependencies {
     implementation(projects.components.core.ui.res)
     implementation(projects.components.core.ui.theme)
+    implementation(projects.components.core.ui.ktx)
 
     // Compose
     implementation(libs.compose.ui)

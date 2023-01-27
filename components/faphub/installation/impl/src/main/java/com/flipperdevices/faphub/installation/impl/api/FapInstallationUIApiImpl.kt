@@ -21,10 +21,12 @@ class FapInstallationUIApiImpl @Inject constructor() : FapInstallationUIApi {
         textSize: TextUnit
     ) {
         ComposableFapInstallationButton(
+            textSize,
             if (fapItem == null) {
                 modifier.placeholderConnecting()
-            } else modifier,
-            textSize
+            } else {
+                modifier
+            },
         )
     }
 
@@ -35,10 +37,12 @@ class FapInstallationUIApiImpl @Inject constructor() : FapInstallationUIApi {
         textSize: TextUnit
     ) {
         ComposableFapUpdateButton(
+            textSize,
             if (fapItem == null) {
                 modifier.placeholderConnecting()
-            } else modifier,
-            textSize
+            } else {
+                modifier
+            }
         )
     }
 }

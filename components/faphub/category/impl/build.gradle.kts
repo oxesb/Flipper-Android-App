@@ -1,5 +1,4 @@
 plugins {
-    id("flipper.lint")
     id("flipper.android-compose")
     id("com.squareup.anvil")
     id("kotlin-kapt")
@@ -12,6 +11,7 @@ dependencies {
     implementation(projects.components.core.ui.ktx)
     implementation(projects.components.core.ui.res)
     implementation(projects.components.core.ui.navigation)
+    implementation(projects.components.core.ktx)
 
     implementation(projects.components.faphub.search.api)
     implementation(projects.components.faphub.dao.api)

@@ -5,9 +5,10 @@ import com.flipperdevices.bridge.dao.api.model.FlipperFileFormat
 import com.flipperdevices.bridge.dao.api.model.FlipperFilePath
 import com.flipperdevices.bridge.dao.api.model.FlipperFileType
 import com.flipperdevices.bridge.dao.api.model.FlipperKey
+import com.flipperdevices.bridge.dao.api.model.FlipperKeyContent
 import com.flipperdevices.bridge.dao.api.model.SHADOW_FILE_EXTENSION
 import com.flipperdevices.bridge.dao.api.model.parsed.FlipperKeyParsed
-import com.flipperdevices.core.ui.hexkeyboard.ImmutableEnumMap
+import com.flipperdevices.core.ui.hexkeyboard.PredefinedEnumMap
 import com.flipperdevices.nfceditor.impl.model.CardFieldInfo
 import com.flipperdevices.nfceditor.impl.model.NfcCellType
 import com.flipperdevices.nfceditor.impl.model.NfcEditorCardInfo
@@ -16,6 +17,8 @@ import com.flipperdevices.nfceditor.impl.model.NfcEditorCell
 import com.flipperdevices.nfceditor.impl.model.NfcEditorLine
 import com.flipperdevices.nfceditor.impl.model.NfcEditorSector
 import com.flipperdevices.nfceditor.impl.model.NfcEditorState
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 private const val EMPTY_BYTE = "$DELETE_SYMBOL$DELETE_SYMBOL"
 private const val LINE_BYTES_COUNT = 16
@@ -69,24 +72,24 @@ object NfcEditorStateProducerHelper {
         }
         var cardInfo: NfcEditorCardInfo? = null
         if (cardType != null) {
-            val fieldsMap = ImmutableEnumMap(
-                CardFieldInfo::class.java,
-                CardFieldInfo.values()
+            val fieldsMap = PredefinedEnumMap(
+                CardFieldInfo::class.java
             ) {
                 val cells = when (it) {
                     CardFieldInfo.UID -> parsedKey.uid
                     CardFieldInfo.ATQA -> parsedKey.atqa
                     CardFieldInfo.SAK -> parsedKey.sak
                 }
-                cells?.split(" ")?.map { cell -> NfcEditorCell(cell, NfcCellType.SIMPLE) }
-                    ?: emptyList()
+                cells?.split(" ")?.map { cell ->
+                    NfcEditorCell(cell, NfcCellType.SIMPLE)
+                }?.toImmutableList() ?: persistentListOf()
             }
             cardInfo = NfcEditorCardInfo(
                 cardType = cardType,
                 fields = fieldsMap
             )
         }
-        return NfcEditorState(cardInfo, parsedKey.keyName, sectors)
+        return NfcEditorState(cardInfo, parsedKey.keyName, sectors.toImmutableList())
     }
 
     private fun parseMifare(
@@ -110,9 +113,9 @@ object NfcEditorStateProducerHelper {
                 } else if (it == littleSectorsSize - 1) {
                     cells = applyColorRules(cells, LINE_4_CELL_RULES)
                 }
-                sectorLines.add(NfcEditorLine(lineIndex, cells))
+                sectorLines.add(NfcEditorLine(lineIndex, cells.toImmutableList()))
             }
-            sectors.add(NfcEditorSector(sectorLines))
+            sectors.add(NfcEditorSector(sectorLines.toImmutableList()))
         }
         val startIndexForLargeLines = littleSectorsCount * littleSectorsSize
         repeat(largeSectorsCount) { sectorIndex ->
@@ -124,9 +127,9 @@ object NfcEditorStateProducerHelper {
                 if (it == largeSectorsSize - 1) {
                     cells = applyColorRules(cells, LINE_4_CELL_RULES)
                 }
-                sectorLines.add(NfcEditorLine(lineIndex, cells))
+                sectorLines.add(NfcEditorLine(lineIndex, cells.toImmutableList()))
             }
-            sectors.add(NfcEditorSector(sectorLines))
+            sectors.add(NfcEditorSector(sectorLines.toImmutableList()))
         }
 
         return sectors
@@ -142,7 +145,9 @@ object NfcEditorStateProducerHelper {
                 it.substring(0, BYTES_SYMBOL_COUNT)
             } else if (it.length < BYTES_SYMBOL_COUNT) {
                 EMPTY_BYTE.replaceRange(0, it.length, it)
-            } else it
+            } else {
+                it
+            }
         }
 
         if (bytes.size < LINE_BYTES_COUNT) {
@@ -169,16 +174,18 @@ object NfcEditorStateProducerHelper {
             processedList = processedList.mapIndexed { index, nfcEditorCell ->
                 if (index in cellRule.first) {
                     nfcEditorCell.copy(cellType = cellRule.second)
-                } else nfcEditorCell
+                } else {
+                    nfcEditorCell
+                }
             }
         }
         return processedList
     }
 
-    fun produceFlipperKeyFromState(
+    private fun newContent(
         oldKey: FlipperKey,
         nfcEditorState: NfcEditorState
-    ): FlipperKey {
+    ): FlipperKeyContent {
         val fff = FlipperFileFormat.fromFlipperContent(oldKey.keyContent)
         val pendingFields = nfcEditorState.sectors.map { it.lines }.flatten()
             .map { line -> line.index to line.cells.joinToString(" ") { it.content } }
@@ -195,6 +202,14 @@ object NfcEditorStateProducerHelper {
             orderedMap[KEY_SAK] = nfcEditorState.nfcEditorCardInfo.fields[CardFieldInfo.SAK]
                 .joinToString(" ") { it.content }
         }
+        return FlipperFileFormat(orderedMap.toList())
+    }
+
+    fun produceShadowFlipperKeyFromState(
+        oldKey: FlipperKey,
+        nfcEditorState: NfcEditorState
+    ): FlipperKey {
+        val newContent = newContent(oldKey, nfcEditorState)
 
         val shadowFile = oldKey.additionalFiles
             .find { it.path.fileType == FlipperFileType.SHADOW_NFC }
@@ -205,12 +220,31 @@ object NfcEditorStateProducerHelper {
                         oldKey.mainFile.path.folder,
                         "${oldKey.mainFile.path.nameWithoutExtension}.$SHADOW_FILE_EXTENSION"
                     ),
-                    content = FlipperFileFormat(orderedMap.toList())
+                    content = newContent
                 )
             ).filterNotNull()
 
         return oldKey.copy(
             additionalFiles = newAdditionalFiles
+        )
+    }
+
+    fun produceClearFlipperKeyFromState(
+        oldKey: FlipperKey,
+        nfcEditorState: NfcEditorState
+    ): FlipperKey {
+        val newContent = newContent(oldKey, nfcEditorState)
+        val newFlipperFile = FlipperFile(
+            path = oldKey.mainFile.path,
+            content = newContent
+        )
+
+        return FlipperKey(
+            mainFile = newFlipperFile,
+            additionalFiles = listOf(),
+            notes = oldKey.notes,
+            synchronized = false,
+            deleted = false
         )
     }
 }
